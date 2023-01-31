@@ -6,5 +6,5 @@ import (
 
 func main() {
 	// examples.BitWise()
-	examples.GoMethods()
+	examples.GoRoutines()
 }
