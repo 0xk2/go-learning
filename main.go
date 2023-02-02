@@ -6,5 +6,5 @@ import (
 
 func main() {
 	// examples.BitWise()
-	examples.GoRoutines()
+	examples.GoTree()
 }
