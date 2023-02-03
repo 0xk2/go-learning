@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package main;
+option go_package = "gobyexample/protoexample";
+
+message Person {
+  string id = 1;
+  string name = 2;
+  int32 age = 3;
+  SocialFollowers social_follower=4;
+}
+
+message SocialFollowers {
+  int32 twitter=1;
+  int32 facebook=2;
+}
