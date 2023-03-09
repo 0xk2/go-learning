@@ -14,5 +14,7 @@ func main() {
 	// fmt.Println("Age: ", p.GetAge())
 	// fmt.Println("Twitter Followers: ", p.GetSocialFollower().GetTwitter())
 	// fmt.Println("Facebook Followers: ", p.GetSocialFollower().GetFacebook())
-	examples.GoChannelsSync()
+	// examples.GoChannelsSync()
+	// examples.GoSlices()
+	examples.GoInterfaces()
 }
