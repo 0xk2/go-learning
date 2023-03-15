@@ -16,5 +16,6 @@ func main() {
 	// fmt.Println("Facebook Followers: ", p.GetSocialFollower().GetFacebook())
 	// examples.GoChannelsSync()
 	// examples.GoSlices()
-	examples.GoInterfaces()
+	// examples.GoInterfaces()
+	examples.GoBlockchanLogic()
 }

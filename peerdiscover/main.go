@@ -113,6 +113,7 @@ func clientMaster(selfServer string) {
 	log.Println("clientMaster ", selfServer)
 	for {
 		remotePort := <-peer
+		// check condition
 		go startClient(remotePort, selfServer)
 	}
 }
