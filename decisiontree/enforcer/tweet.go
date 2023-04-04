@@ -1,4 +1,4 @@
-package decisiontree
+package enforcer
 
 import (
 	"bytes"
@@ -6,9 +6,9 @@ import (
 	"net/http"
 )
 
-func tweet(text string) bool {
+func Tweet(text string) bool {
 	endPoint := "https://api.twitter.com/2/tweets"
-	auth := "T3ZvMlZOUUllVjVVWHdEM0puM1NnWm1WR0R6RE9lckt6SnVnSm5vNzRyazVUOjE2ODAyNDY3NjU4Mjk6MToxOmF0OjE"
+	auth := "RHNFZnRtaEtGS2JxN3BuNVNad2dfSEduZHQ3MTl4TVpfdjVEOWE4czc0YVJ1OjE2ODA1MjMyOTA2MjU6MToxOmFjOjE"
 	var jsonStr = []byte(`{"text":"` + text + `"}`)
 	request, err := http.NewRequest("POST", endPoint, bytes.NewBuffer(jsonStr))
 	if err != nil {

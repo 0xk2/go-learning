@@ -1,17 +1,18 @@
-package decisiontree
+package network
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"gobyexample/decisiontree/dtree"
+	. "gobyexample/decisiontree/types"
+	"gobyexample/decisiontree/utils"
+	"gobyexample/decisiontree/votemachine"
 )
 
-type CreateResponse struct {
-	Id string `json:"id"`
-}
-
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
-	SetupCORS(&w, r)
+	utils.SetupCORS(&w, r)
 	if (*r).Method == "OPTIONS" {
 		return
 	}
@@ -30,31 +31,31 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	startId := missionData.Start
-	var nodes = make(map[string]*Node)
+	var nodes = make(map[string]*dtree.Node)
 	for _, nodeData := range missionData.Nodes {
 		if nodeData.NodeType == "MultipleChoice" {
-			max, options := ConverToMultipleChoiceData(nodeData.Data)
-			nodeData.Data = MultipleChoiceData{
+			max, options := utils.ConverToMultipleChoiceData(nodeData.Data)
+			nodeData.Data = votemachine.MultipleChoiceData{
 				Options: options,
 				Max:     max,
 			}
 		} else if nodeData.NodeType == "SingleChoice" {
-			options := ConvertToSingleChoiceData(nodeData.Data)
-			nodeData.Data = SingleChoiceData{
+			options := utils.ConvertToSingleChoiceData(nodeData.Data)
+			nodeData.Data = votemachine.SingleChoiceData{
 				Options: options,
 			}
 		}
-		nodes[nodeData.Id] = createEmptyNode(nodeData.Name, nodeData.IsOuput, nodeData.NodeType, nodeData.Data)
-		nodes[nodeData.Id].id = nodeData.Id
+		nodes[nodeData.Id] = dtree.CreateEmptyNode(nodeData.Name, nodeData.IsOuput, nodeData.NodeType, nodeData.Data)
+		nodes[nodeData.Id].Id = nodeData.Id
 	}
 	for _, nodeData := range missionData.Nodes {
 		if nodeData.Parent != "" {
-			nodes[nodeData.Parent].attach(nodes[nodeData.Id])
+			nodes[nodeData.Parent].Attach(nodes[nodeData.Id])
 		}
 	}
-	missionId := RandString(16)
-	Missions[missionId] = createTree(nodes[startId], missionData.Name, missionData.Description)
-	Missions[missionId].printFromCurrent()
+	missionId := utils.RandString(16)
+	Missions[missionId] = dtree.CreateTree(nodes[startId], missionData.Name, missionData.Description)
+	Missions[missionId].PrintFromCurrent()
 
 	CreateResponse := CreateResponse{
 		Id: missionId,

@@ -1,4 +1,4 @@
-package decisiontree
+package utils
 
 import (
 	"math/rand"

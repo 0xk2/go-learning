@@ -1,0 +1,3 @@
+package votemachine
+
+func SingleChoiceRaceToMax() {}

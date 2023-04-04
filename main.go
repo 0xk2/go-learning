@@ -1,6 +1,6 @@
 package main
 
-import decisiontree "gobyexample/decisionTree"
+import "gobyexample/decisiontree/network"
 
 func main() {
 	// examples.BitWise()
@@ -19,7 +19,7 @@ func main() {
 	// examples.GoInterfaces()
 	// examples.GoBlockchanLogic()
 	// examples.GoBuildTree("tree.json")
-	decisiontree.GoServeTree()
+	network.GoServeTree()
 	for {
 	}
 }
