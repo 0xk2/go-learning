@@ -3,12 +3,12 @@ package network
 import (
 	"encoding/json"
 	"fmt"
-	"gobyexample/decisiontree/utils"
-	"gobyexample/decisiontree/votemachine"
+	"gobyexample/decision_tree/utils"
+	"gobyexample/decision_tree/votemachine"
 	"log"
 	"net/http"
 
-	. "gobyexample/decisiontree/types"
+	. "gobyexample/decision_tree/types"
 )
 
 func ShowHandler(w http.ResponseWriter, r *http.Request) {
@@ -51,11 +51,7 @@ func ShowHandler(w http.ResponseWriter, r *http.Request) {
 		NodeType:           mission.Current.NodeType,
 		AllHistoryData:     allHistoryData,
 	}
-	if mission.Current.NodeType == "MultipleChoiceData" {
-		resp.Choice = mission.Current.AllData.(votemachine.MultipleChoiceData).Options
-	} else if mission.Current.NodeType == "SingleChoice" {
-		resp.Choice = mission.Current.AllData.(votemachine.SingleChoiceData).Options
-	}
+	resp.Choice = votemachine.GetOptions(mission.Current.NodeType, mission.Current.AllData)
 	mission.Current.Print()
 	log.Print(resp)
 	jsonData, err := json.Marshal(resp)

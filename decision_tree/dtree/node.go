@@ -2,8 +2,8 @@ package dtree
 
 import (
 	"fmt"
-	"gobyexample/decisiontree/utils"
-	"gobyexample/decisiontree/votemachine"
+	"gobyexample/decision_tree/utils"
+	"gobyexample/decision_tree/votemachine"
 	"gobyexample/ppds/tree"
 )
 
@@ -14,7 +14,7 @@ type Node struct {
 	AllChildren []*Node
 	Voted       map[int]int
 	IsOuput     bool
-	NodeType    string // "SingleChoice" or "MultipleChoice"
+	NodeType    votemachine.VoteMachineType
 	AllData     interface{}
 }
 
@@ -36,40 +36,9 @@ func (n *Node) Children() (c []tree.Node) {
 }
 
 // nodeType == "SingleChoice" then option is int; nodeType == "MultiChoice" then option is []string
-func (this *Node) Vote(who string, options []int) (selectedOption int, votedResult map[int]int) {
-	voted := this.Voted
-	if this.NodeType == "SingleChoice" {
-		singleChoice := options[0]
-		voted[singleChoice] += 1
-		optionName := this.AllChildren[singleChoice].Name
-		fmt.Printf("%s vote %d [%s]. There are %d person(s) choose %s\n", who, options[0], optionName, voted[singleChoice], optionName)
-		if voted[singleChoice] == 3 { // let's move on
-			return singleChoice, voted
-		}
-	} else if this.NodeType == "MultipleChoice" {
-		choices := make([]int, 0)
-		for _, opt := range options {
-			choices = append(choices, utils.InterfaceToInt(opt))
-		}
-		str := ""
-		max, options := utils.ConverToMultipleChoiceData(this.Data)
-		for _, choice := range choices {
-			str += options[choice] + ","
-			voted[choice] += 1
-		}
-		choosen := make(map[int]int)
-
-		fmt.Printf("%s vote [%s]; top %d choice win will\n", who, str, max)
-
-		for opt, choice := range voted {
-			if choice >= max {
-				choosen[opt] = choice
-			}
-		}
-
-		return 0, choosen
-	}
-	return -1, nil
+func (this *Node) Vote(who string, userSelectedOptions []int) (int, map[int]int) {
+	selectedOption, voteResult := votemachine.Vote(this.NodeType, who, userSelectedOptions, this.Voted, this.AllData)
+	return selectedOption, voteResult
 }
 
 func (this *Node) Start(input map[int]int, originalOptions []string) {
@@ -89,7 +58,7 @@ func (this *Node) Start(input map[int]int, originalOptions []string) {
 	}
 }
 
-func CreateEmptyNode(name string, isOutput bool, nodeType string, data interface{}) *Node {
+func CreateEmptyNode(name string, isOutput bool, nodeType votemachine.VoteMachineType, data interface{}) *Node {
 	node := Node{
 		Name:        name,
 		AllChildren: []*Node{},
@@ -150,14 +119,9 @@ func (this *Node) IsValidChoice(choices []int) bool {
 func (this *Node) ConvertOptionIdxToString(choices []int) []string {
 	nodeType := this.NodeType
 	result := make([]string, 0)
-	if nodeType == "SingleChoice" {
-		data := this.AllData.(votemachine.SingleChoiceData)
-		result = append(result, data.Options[choices[0]])
-	} else if nodeType == "MultipleChoice" {
-		data := this.AllData.(votemachine.SingleChoiceData)
-		for _, choice := range choices {
-			result = append(result, data.Options[choice])
-		}
+	options := votemachine.GetOptions(nodeType, this.AllData)
+	for _, choice := range choices {
+		result = append(result, options[choice])
 	}
 	return result
 }

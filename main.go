@@ -1,6 +1,6 @@
 package main
 
-import "gobyexample/decisiontree/network"
+import "gobyexample/decision_tree/network"
 
 func main() {
 	// examples.BitWise()

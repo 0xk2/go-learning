@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	"gobyexample/decisiontree/enforcer"
-	. "gobyexample/decisiontree/types"
-	"gobyexample/decisiontree/utils"
-	"gobyexample/decisiontree/votemachine"
+	"gobyexample/decision_tree/enforcer"
+	. "gobyexample/decision_tree/types"
+	"gobyexample/decision_tree/utils"
+	"gobyexample/decision_tree/votemachine"
 )
 
 func VoteHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,21 +68,12 @@ func VoteHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Status = true
 	current := mission.Current
 	selectedOption, votedResult := current.Vote(who, options)
-	var originalOptions []string
-	if current.NodeType == "MultipleChoice" {
-		_, originalOptions = utils.ConverToMultipleChoiceData(current.AllData)
-	} else if current.NodeType == "SingleChoice" {
-		originalOptions = current.AllData.(votemachine.SingleChoiceData).Options
-	}
+	originalOptions := votemachine.GetOptions(current.NodeType, current.AllData)
 	if selectedOption != -1 && votedResult != nil {
 		mission.Choose(selectedOption)
 		current = mission.Current
 		current.Start(votedResult, originalOptions)
 		log.Print("current: " + current.Name)
-		if current.NodeType == "MultipleChoice" {
-			max, options := utils.ConverToMultipleChoiceData(current.AllData)
-			log.Printf("max: %d, options: %s", max, options)
-		}
 		if mission.Current.IsOuput == true {
 			fmt.Printf("The mission is done, the result is %s\n; can tweet now", mission.Current.Name)
 			log.Println(votedResult)

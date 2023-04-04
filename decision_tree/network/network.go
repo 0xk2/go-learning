@@ -1,7 +1,7 @@
 package network
 
 import (
-	. "gobyexample/decisiontree/dtree"
+	. "gobyexample/decision_tree/dtree"
 	"log"
 	"net/http"
 )

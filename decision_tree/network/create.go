@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"gobyexample/decisiontree/dtree"
-	. "gobyexample/decisiontree/types"
-	"gobyexample/decisiontree/utils"
-	"gobyexample/decisiontree/votemachine"
+	"gobyexample/decision_tree/dtree"
+	. "gobyexample/decision_tree/types"
+	"gobyexample/decision_tree/utils"
+	"gobyexample/decision_tree/votemachine"
 )
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
@@ -33,18 +33,7 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 	startId := missionData.Start
 	var nodes = make(map[string]*dtree.Node)
 	for _, nodeData := range missionData.Nodes {
-		if nodeData.NodeType == "MultipleChoice" {
-			max, options := utils.ConverToMultipleChoiceData(nodeData.Data)
-			nodeData.Data = votemachine.MultipleChoiceData{
-				Options: options,
-				Max:     max,
-			}
-		} else if nodeData.NodeType == "SingleChoice" {
-			options := utils.ConvertToSingleChoiceData(nodeData.Data)
-			nodeData.Data = votemachine.SingleChoiceData{
-				Options: options,
-			}
-		}
+		nodeData.Data = votemachine.Parse(nodeData.NodeType, nodeData.Data)
 		nodes[nodeData.Id] = dtree.CreateEmptyNode(nodeData.Name, nodeData.IsOuput, nodeData.NodeType, nodeData.Data)
 		nodes[nodeData.Id].Id = nodeData.Id
 	}
