@@ -2,7 +2,6 @@ package dtree
 
 import (
 	"fmt"
-	. "gobyexample/decisiontree/types"
 	"gobyexample/decisiontree/utils"
 	"gobyexample/decisiontree/votemachine"
 	"gobyexample/ppds/tree"
