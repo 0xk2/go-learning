@@ -2,42 +2,34 @@ package votemachine
 
 type VoteMachineType string
 
+type VoteMachineInterface interface {
+	init(data interface{}, isOutput bool, noOfChildren int)
+	Start(from VoteMachineType, seed interface{})
+	IsValidChoice(who string, userSelectedOptions []interface{}) bool
+	Vote(who string, userSelectedOptions []interface{})
+	GetChoices() interface{}
+	GetTallyResult() (machineType VoteMachineType, nextChildId int, votedResult interface{})
+	GetCurrentVoteState() interface{}
+}
+
 const (
-	SingleChoiceRaceToMax   VoteMachineType = "SingleChoiceRaceToMax"
-	MultipleChoiceRaceToMax VoteMachineType = "MultipleChoiceRaceToMax"
+	VM_SingleChoiceRaceToMax   VoteMachineType = "SingleChoiceRaceToMax"
+	VM_MultipleChoiceRaceToMax VoteMachineType = "MultipleChoiceRaceToMax"
 )
 
 type RequiredVoteData struct {
-	StartAfter int `json:"start_after"` // timestamp; start after Node start
+	StartAfter int `json:"start_after"` // timestamp; start after CheckPoint start
 	EndBefore  int `json:"end_before"`  // length in second; must > 1 min in production
 }
 
-func Vote(nodeType VoteMachineType, who string, userSelectedOptions []int, voted map[int]int, allData interface{}) (int, map[int]int) {
-	switch nodeType {
-	case SingleChoiceRaceToMax:
-		return SingleChoiceRaceToMax_Vote(who, userSelectedOptions, voted, allData)
-	case MultipleChoiceRaceToMax:
-		return MultipleChoiceRaceToMax_Vote(who, userSelectedOptions, voted, allData)
-	}
-	return -1, nil
-}
-
-func Parse(nodeType VoteMachineType, allData interface{}) interface{} {
-	switch nodeType {
-	case SingleChoiceRaceToMax:
-		return SingleChoiceRaceToMax_Parse(allData)
-	case MultipleChoiceRaceToMax:
-		return MultipleChoiceRaceToMax_Parse(allData)
-	}
-	return nil
-}
-
-func GetOptions(nodeType VoteMachineType, allData interface{}) []string {
-	switch nodeType {
-	case SingleChoiceRaceToMax:
-		return allData.(SingleChoiceRaceToMaxData).Options
-	case MultipleChoiceRaceToMax:
-		return allData.(MultipleChoiceRaceToMaxData).Options
+func BuildVoteMachine(machineType VoteMachineType, data interface{}, isOutput bool, noOfChildren int) VoteMachineInterface {
+	switch machineType {
+	case VM_SingleChoiceRaceToMax:
+		tmp := &SingleChoiceRaceToMax{}
+		tmp.init(data, isOutput, noOfChildren)
+		return tmp
+	case VM_MultipleChoiceRaceToMax:
+		return &MultipleChoiceRaceToMax{}
 	}
 	return nil
 }

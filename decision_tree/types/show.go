@@ -3,8 +3,9 @@ package types
 import "gobyexample/decision_tree/votemachine"
 
 type HistoryData struct {
-	Name  string      `json:"name"`
-	Voted map[int]int `json:"voted"`
+	Name        string                      `json:"name"`
+	Voted       interface{}                 `json:"voted"`
+	MachineType votemachine.VoteMachineType `json:"machine_type"`
 	// add originalOptions
 }
 
@@ -13,8 +14,8 @@ type ShowResponse struct {
 	MissionName        string                      `json:"mission_name"`
 	MissionDescription string                      `json:"mission_description"`
 	Name               string                      `json:"current"`
-	Vote               map[int]int                 `json:"vote"`
-	Choice             interface{}                 `json:"choice"`
-	NodeType           votemachine.VoteMachineType `json:"node_type"`
+	CurrentVoteResult  interface{}                 `json:"current_vote_result"`
+	Choices            interface{}                 `json:"choices"`
+	VoteMachineType    votemachine.VoteMachineType `json:"vote_machine_type"`
 	AllHistoryData     []HistoryData               `json:"all_history_data"`
 }

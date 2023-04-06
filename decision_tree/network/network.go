@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-var Missions = make(map[string]*Tree)
+var Missions = make(map[string]*Mission)
 
 func GoServeTree() {
 	http.HandleFunc("/create", CreateHandler)

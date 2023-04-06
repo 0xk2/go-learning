@@ -8,7 +8,6 @@ import (
 	"gobyexample/decision_tree/dtree"
 	. "gobyexample/decision_tree/types"
 	"gobyexample/decision_tree/utils"
-	"gobyexample/decision_tree/votemachine"
 )
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,20 +30,24 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	startId := missionData.Start
-	var nodes = make(map[string]*dtree.Node)
-	for _, nodeData := range missionData.Nodes {
-		nodeData.Data = votemachine.Parse(nodeData.NodeType, nodeData.Data)
-		nodes[nodeData.Id] = dtree.CreateEmptyNode(nodeData.Name, nodeData.IsOuput, nodeData.NodeType, nodeData.Data)
-		nodes[nodeData.Id].Id = nodeData.Id
+	var checkPoints = make(map[string]*dtree.CheckPoint)
+	for _, checkPointData := range missionData.CheckPoints {
+		checkPoints[checkPointData.Id] = dtree.CreateEmptyCheckPoint(checkPointData.Name, checkPointData.IsOuput, checkPointData.VoteMachineType, checkPointData.Data)
+		checkPoints[checkPointData.Id].Id = checkPointData.Id
 	}
-	for _, nodeData := range missionData.Nodes {
-		if nodeData.Parent != "" {
-			nodes[nodeData.Parent].Attach(nodes[nodeData.Id])
+	for _, checkPointData := range missionData.CheckPoints {
+		if checkPointData.Parent != "" {
+			checkPoints[checkPointData.Parent].Attach(checkPoints[checkPointData.Id])
 		}
 	}
+	for _, checkPoint := range checkPoints {
+		checkPoint.FinishAttachChildren()
+	}
 	missionId := utils.RandString(16)
-	Missions[missionId] = dtree.CreateTree(nodes[startId], missionData.Name, missionData.Description)
+	Missions[missionId] = dtree.CreateMission(checkPoints[startId], missionData.Name, missionData.Description)
 	Missions[missionId].PrintFromCurrent()
+	// for demo, start now
+	Missions[missionId].Current.Start("", nil)
 
 	CreateResponse := CreateResponse{
 		Id: missionId,

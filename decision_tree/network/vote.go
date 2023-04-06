@@ -9,7 +9,6 @@ import (
 	"gobyexample/decision_tree/enforcer"
 	. "gobyexample/decision_tree/types"
 	"gobyexample/decision_tree/utils"
-	"gobyexample/decision_tree/votemachine"
 )
 
 func VoteHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,14 +51,15 @@ func VoteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := VoteResponse{
-		Option: mission.Current.ConvertOptionIdxToString(options),
+		Option:      vote.Options,
+		MachineType: mission.Current.VoteMachineType,
 	}
 
-	isValid := mission.IsValidChoice(options)
+	isValid := mission.IsValidChoice(who, options)
 	if !isValid {
 		resp.Status = false
 		jsonData, _ := json.Marshal(resp)
-		fmt.Printf("*%s* %s vote %v, this is an invalid vote\n", mission.Current.NodeType, who, options)
+		fmt.Printf("*%s* %s vote %v, this is an invalid vote\n", mission.Current.VoteMachineType, who, options)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "%s", jsonData)
@@ -67,17 +67,15 @@ func VoteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	resp.Status = true
 	current := mission.Current
-	selectedOption, votedResult := current.Vote(who, options)
-	originalOptions := votemachine.GetOptions(current.NodeType, current.AllData)
-	if selectedOption != -1 && votedResult != nil {
-		mission.Choose(selectedOption)
-		current = mission.Current
-		current.Start(votedResult, originalOptions)
-		log.Print("current: " + current.Name)
+	current.Vote(who, options)
+	_, nextChildId, votedResult := current.GetTallyResult()
+	if nextChildId != -1 && votedResult != nil {
+		mission.Choose(nextChildId)
+		// IsOutput is for demo purpose, in real world, we should use an event
 		if mission.Current.IsOuput == true {
 			fmt.Printf("The mission is done, the result is %s\n; can tweet now", mission.Current.Name)
 			log.Println(votedResult)
-			if mission.Current.NodeType == "MultipleChoice" {
+			if mission.Current.VoteMachineType == "MultipleChoice" {
 				enforcer.Tweet("result of " + vote.MissionId + " is: " + fmt.Sprintf("%v", options))
 			} else {
 				enforcer.Tweet("result of " + vote.MissionId + " is: " + mission.Current.Name)

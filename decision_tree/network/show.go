@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"gobyexample/decision_tree/utils"
-	"gobyexample/decision_tree/votemachine"
 	"log"
 	"net/http"
 
@@ -30,10 +29,18 @@ func ShowHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var allHistoryData []HistoryData
 	parent := mission.Current.Parent
+	i := 0
+	// take the last 5 history data
 	for parent != nil {
+		i++
+		if i > 5 {
+			break
+		}
+		machineType, _, result := parent.VoteMachine.GetTallyResult()
 		allHistoryData = append(allHistoryData, HistoryData{
-			Name:  parent.Name,
-			Voted: parent.Voted,
+			Name:        parent.Name,
+			Voted:       result,
+			MachineType: machineType,
 		})
 		parent = parent.Parent
 	}
@@ -47,11 +54,11 @@ func ShowHandler(w http.ResponseWriter, r *http.Request) {
 		MissionName:        mission.Name,
 		MissionDescription: mission.Description,
 		Name:               mission.Current.Name,
-		Vote:               mission.Current.Voted,
-		NodeType:           mission.Current.NodeType,
+		CurrentVoteResult:  mission.Current.VoteMachine.GetCurrentVoteState(),
+		VoteMachineType:    mission.Current.VoteMachineType,
 		AllHistoryData:     allHistoryData,
 	}
-	resp.Choice = votemachine.GetOptions(mission.Current.NodeType, mission.Current.AllData)
+	resp.Choices = mission.Current.VoteMachine.GetChoices()
 	mission.Current.Print()
 	log.Print(resp)
 	jsonData, err := json.Marshal(resp)
